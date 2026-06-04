@@ -29,11 +29,11 @@ export default function Home() {
 
           <div className="w-full max-w-5xl mt-8 mb-4 px-2 text-center">
             {messages.length ? (
-              <p className="text-3xl font-semibold">{selectedChat?.name || 'New Chat'}</p>
+              <p className="text-3xl font-semibold">{selectedChat?.name || ' '}</p>
             ) : (
               <>
-                <Image src={assets.logo_icon} alt="" className="mx-auto h-16"/>
-                <p className="text-3xl font-semibold mt-4">Hi, I'm Your Personal DSA Instructor</p>
+                <Image src={assets.logo_icon} alt="" className="mx-auto h-20 w-24"/>
+                <p className="text-3xl font-semibold mt-4">Hi, I'm AlgoMaster AI</p>
                 <p className="text-sm mt-2 text-white/70">{selectedChat?.name || 'New Chat'}</p>
               </>
             )}
@@ -52,8 +52,7 @@ export default function Home() {
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center h-full py-20 text-center text-white/70 gap-3">
-                <p className="text-lg font-medium">{selectedChat?.name || 'New Chat'}</p>
-                <p className="text-sm">Send a question to get started with this conversation.</p>
+                <p className="text-sm">Ask question </p>
               </div>
             )}
           </div>
