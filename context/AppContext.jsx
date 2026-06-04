@@ -1,7 +1,9 @@
 "use client";
-import { useUser } from "@clerk/nextjs";
-import { createContext, useContext } from "react";
-
+import { useAuth,useUser } from "@clerk/nextjs";
+import axios from "axios";
+import { createContext, useContext, useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { NextResponse } from "next/server";
 export const AppContext =createContext();
 
 export const useAppContext =()=>{
@@ -10,9 +12,72 @@ export const useAppContext =()=>{
 
 export const AppContextProvider =({children})=>{
     const {user} =useUser();
+    const {getToken}=useAuth();
 
+    const [chats,setChats]=useState([]);
+    const [selectedChat,setSelectedChat]=useState(null);
+
+    const createNewChat=async ()=>{
+        try{
+            if(!user) return null;
+
+            const token =await getToken();
+            await axios.post('/api/Chat/create',{},{headers:{
+                Authorization:`Bearer ${token}`
+            }})
+
+            fetchUsersChats();
+        }catch(error){
+            toast.error(error.message)
+        }
+    }
+
+    const fetchUsersChats =async()=>{
+        try{
+             const token =await getToken();
+
+             const {data} =await axios.get('/api/Chat/get',{headers:{
+                Authorization:`Bearer ${token}`
+            }})
+            if(data.success){
+                console.log(data.data);
+                setChats(data.data);
+
+                // If the user have no chat create the new chat 
+                if(data.data.length ===0){
+                    await createNewChat();
+                    return fetchUsersChats();
+                }
+                else{
+                    //  sorts the chats by updated dates
+                    data.data.sort( (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+                    // set recently updated chat as selected chat
+                    setSelectedChat(data.data[0]);
+                    console.log(data.data[0])
+                }
+            }
+            else {
+                toast.error(data.message)
+            }
+            }
+        catch(error){
+             toast.error(error.message)
+        }
+    }
+
+useEffect(()=>{
+    if(user){
+        fetchUsersChats();
+    }
+},[user])
     const value ={
-        user
+        user,
+        chats,
+        setChats,
+        selectedChat,
+        setSelectedChat,
+        fetchUsersChats,
+        createNewChat
     }
     return <AppContext.Provider value={value}>{children}</AppContext.Provider>
 }
