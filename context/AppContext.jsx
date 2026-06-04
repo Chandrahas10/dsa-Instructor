@@ -32,6 +32,63 @@ export const AppContextProvider =({children})=>{
         }
     }
 
+    const deleteChat = async(chatId) => {
+        try {
+            if(!user) return null;
+            const token = await getToken();
+            const {data} = await axios.post('/api/Chat/delete', { chatId }, { headers: {
+                Authorization: `Bearer ${token}`
+            }});
+            if (data.success) {
+                let remainingCount = 0;
+                setChats((prevChats) => {
+                    const remaining = prevChats.filter((chat) => chat._id !== chatId);
+                    remainingCount = remaining.length;
+                    if (selectedChat?._id === chatId) {
+                        setSelectedChat(remaining[0] || null);
+                    }
+                    return remaining;
+                });
+                if (selectedChat?._id === chatId && remainingCount === 0) {
+                    await createNewChat();
+                }
+                toast.success('Chat deleted');
+            } else {
+                toast.error(data.message || 'Unable to delete chat');
+            }
+        } catch (error) {
+            toast.error(error.message);
+        }
+    }
+
+    const renameChat = async(chatId, name) => {
+        try {
+            if(!user) return null;
+            if (!name?.trim()) {
+                toast.error('Chat name cannot be empty');
+                return false;
+            }
+
+            const token = await getToken();
+            const {data} = await axios.post('/api/Chat/rename', { chatId, name: name.trim() }, { headers: {
+                Authorization: `Bearer ${token}`
+            }});
+            if (data.success) {
+                setChats((prevChats) => prevChats.map((chat) => chat._id === chatId ? { ...chat, name: name.trim() } : chat));
+                if (selectedChat?._id === chatId) {
+                    setSelectedChat((prev) => prev ? { ...prev, name: name.trim() } : prev);
+                }
+                toast.success('Chat renamed');
+                return true;
+            }
+            toast.error(data.message || 'Unable to rename chat');
+            return false;
+        } catch (error) {
+            toast.error(error.message);
+            return false;
+        }
+    }
+
     const fetchUsersChats =async()=>{
         try{
              const token =await getToken();
@@ -77,7 +134,9 @@ useEffect(()=>{
         selectedChat,
         setSelectedChat,
         fetchUsersChats,
-        createNewChat
+        createNewChat,
+        deleteChat,
+        renameChat
     }
     return <AppContext.Provider value={value}>{children}</AppContext.Provider>
 }

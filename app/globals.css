@@ -7,6 +7,44 @@ html{
   @apply scroll-smooth;
 }
 
-::-webkit-scrollbar{
-  display: none;
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #292a2d;
+  --bg-sidebar: #212327;
+  --bg-panel: #1f2226;
+  --text: #ffffff;
+  --text-secondary: #cbd5e1;
+  --text-muted: #9ca3af;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f8fafc;
+  --bg-sidebar: #e2e8f0;
+  --bg-panel: #ffffff;
+  --text: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+}
+
+html, body {
+  background-color: var(--bg);
+  color: var(--text);
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+/* Visible, thin scrollbars for recents chats */
+.recents-scrollbar {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: rgba(100,100,100,0.5) transparent;
+}
+.recents-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+.recents-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.recents-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(100,100,100,0.5);
+  border-radius: 9999px;
 }
